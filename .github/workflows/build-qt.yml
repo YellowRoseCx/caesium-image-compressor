@@ -137,9 +137,9 @@ jobs:
       - name: Build
         run: |
           cmake --build ${{github.workspace}}/build-${{ runner.os }} --config Release --target caesium_image_compressor
-          Set-Location '${{github.workspace}}/build-${{ runner.os }}'
+          cd '${{github.workspace}}/build-${{ runner.os }}'
           ls
-          Set-Location '${{github.workspace}}'
+          cd '${{github.workspace}}'
           ls
           
 
