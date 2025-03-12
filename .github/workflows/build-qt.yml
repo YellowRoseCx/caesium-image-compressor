@@ -93,9 +93,9 @@ jobs:
           Categories=Graphics;
           Terminal=false
           EOF
-          cp ${{github.workspace}}/build-${{ runner.os }}/AppDir/caesium-image-compressor.desktop ${{github.workspace}}/build-${{ runner.os }}/AppDir/
           ../linuxdeployqt-continuous-x86_64.AppImage --appimage-extract-and-run ${{github.workspace}}/build-${{ runner.os }}/AppDir/caesium-image-compressor.desktop -appimage -unsupported-allow-new-glibc -no-copy-copyright-files
           mv ${{github.workspace}}/build-${{ runner.os }}/AppDir*.AppImage ${{github.workspace}}/build-${{ runner.os }}/
+          
 
       - name: Upload AppImage as Artifact
         uses: actions/upload-artifact@v4
