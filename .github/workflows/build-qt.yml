@@ -81,7 +81,6 @@ jobs:
         env:
           LD_LIBRARY_PATH: /usr/lib/x86_64-linux-gnu
           LINUXDEPLOYQT_PATH: ${{ github.workspace }}/linuxdeployqt-continuous-x86_64.AppImage
-          QMAKE_PATH: ${{ env.Qt6_Dir }}/bin/qmake
         run: |
           mkdir -p ${{github.workspace}}/build-${{ runner.os }}/AppDir
           mkdir -p ${{github.workspace}}/build-${{ runner.os }}/AppDir/usr/bin
@@ -97,7 +96,7 @@ jobs:
           Categories=Graphics;
           Terminal=false
           EOF
-          ${{ env.LINUXDEPLOYQT_PATH }} --appimage-extract-and-run ${{github.workspace}}/build-${{ runner.os }}/AppDir/caesium-image-compressor.desktop -appimage -unsupported-allow-new-glibc -no-copy-copyright-files -qmake=${{ env.QMAKE_PATH }} -verbose=3
+          ${{ env.LINUXDEPLOYQT_PATH }} --appimage-extract-and-run ${{github.workspace}}/build-${{ runner.os }}/AppDir/caesium-image-compressor.desktop -appimage -unsupported-allow-new-glibc -no-copy-copyright-files -qmake=${{ env.Qt6_Dir }}/bin/qmake -verbose=3
           mv ${{github.workspace}}/build-${{ runner.os }}/AppDir*.AppImage ${{github.workspace}}/build-${{ runner.os }}/
 
       - name: Upload AppImage as Artifact
