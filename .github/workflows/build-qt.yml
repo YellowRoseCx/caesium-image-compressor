@@ -61,12 +61,13 @@ jobs:
           modules: 'qtimageformats'
           cache: true
 
-      - name: Install linuxdeployqt
+      - name: Install linuxdeployqt and squashfuse
         run: |
+          sudo apt-get update  # Important to update package lists
+          sudo apt-get install -y squashfuse  # Install squashfuse
           wget "https://github.com/probonopd/linuxdeployqt/releases/download/continuous/linuxdeployqt-continuous-x86_64.AppImage"
           chmod +x linuxdeployqt-continuous-x86_64.AppImage
           sudo mv linuxdeployqt-continuous-x86_64.AppImage /usr/local/bin/linuxdeployqt
-
       - name: Configure CMake
         run: cmake -B ${{github.workspace}}/build-${{ runner.os }} -DCMAKE_PREFIX_PATH="${{env.Qt6_Dir}}" -DCMAKE_BUILD_TYPE=Release
 
