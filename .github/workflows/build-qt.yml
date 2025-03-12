@@ -83,7 +83,7 @@ jobs:
           mkdir -p ${{github.workspace}}/build-${{ runner.os }}/AppDir/usr/bin
           mkdir -p ${{github.workspace}}/build-${{ runner.os }}/AppDir/usr/share/icons/hicolor/256x256/apps/  # Standard icon location
           cp ${{github.workspace}}/build-${{ runner.os }}/caesium-image-compressor ${{github.workspace}}/build-${{ runner.os }}/AppDir/usr/bin/
-          cp ${{github.workspace}}/resources/icons/icon.png ${{github.workspace}}/build-${{ runner.os }}/AppDir/usr/share/icons/hicolor/256x256/apps/caesium-image-compressor.png
+          cp ${{github.workspace}}/resources/icons/logo.png ${{github.workspace}}/build-${{ runner.os }}/AppDir/usr/share/icons/hicolor/256x256/apps/caesium-image-compressor.png
           cat > ${{github.workspace}}/build-${{ runner.os }}/AppDir/caesium-image-compressor.desktop <<EOF
           [Desktop Entry]
           Type=Application
