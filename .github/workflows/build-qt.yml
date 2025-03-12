@@ -105,7 +105,7 @@ jobs:
 
       - name: Upload AppImage to GitHub Release
         id: upload-release
-        uses: svenstaro/upload-release-action@v2.9.0
+        uses: svenstaro/upload-release-action@2.9.0
         with:
           file_glob: true
           file: ${{github.workspace}}/build-${{ runner.os }}/caesium-image-compressor*.AppImage
