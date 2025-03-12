@@ -139,6 +139,7 @@ jobs:
           cmake --build ${{github.workspace}}/build-${{ runner.os }} --config Release --target caesium_image_compressor
           cd '${{github.workspace}}/build-${{ runner.os }}'
           ls
+          echo 'end of that one!'
           cd '${{github.workspace}}'
           ls
           
@@ -149,7 +150,7 @@ jobs:
         continue-on-error: true
         with:
           file_glob: true
-          file: ${{github.workspace}}/build-${{ runner.os }}/*.*
+          file: ${{github.workspace}}/build-${{ runner.os }}/caesium-image-compressor
           release_name: caesium_image_compressor-${{ inputs.version }}
           tag: ${{ inputs.version }}
           make_latest: true
