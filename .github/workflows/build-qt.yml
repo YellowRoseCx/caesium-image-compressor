@@ -77,11 +77,25 @@ jobs:
 
       - name: Create AppImage
         env:
-          LD_LIBRARY_PATH: /usr/lib/x86_64-linux-gnu  # This is crucial for squashfuse
+          LD_LIBRARY_PATH: /usr/lib/x86_64-linux-gnu
         run: |
-          cd ${{github.workspace}}/build-${{ runner.os }}
-          ../linuxdeployqt-continuous-x86_64.AppImage --appimage-extract-and-run caesium-image-compressor -appdir -unsupported-allow-new-glibc
-          mv caesium-image-compressor*.AppImage ../
+          mkdir -p ${{github.workspace}}/build-${{ runner.os }}/AppDir
+          mkdir -p ${{github.workspace}}/build-${{ runner.os }}/AppDir/usr/bin
+          mkdir -p ${{github.workspace}}/build-${{ runner.os }}/AppDir/usr/share/icons/hicolor/256x256/apps/  # Standard icon location
+          cp ${{github.workspace}}/build-${{ runner.os }}/caesium-image-compressor ${{github.workspace}}/build-${{ runner.os }}/AppDir/usr/bin/
+          cp ${{github.workspace}}/resources/icons/icon.png ${{github.workspace}}/build-${{ runner.os }}/AppDir/usr/share/icons/hicolor/256x256/apps/caesium-image-compressor.png
+          cat > ${{github.workspace}}/build-${{ runner.os }}/AppDir/caesium-image-compressor.desktop <<EOF
+          [Desktop Entry]
+          Type=Application
+          Name=Caesium Image Compressor
+          Exec=usr/bin/caesium-image-compressor
+          Icon=caesium-image-compressor
+          Categories=Graphics;
+          Terminal=false
+          EOF
+          cp ${{github.workspace}}/build-${{ runner.os }}/AppDir/caesium-image-compressor.desktop ${{github.workspace}}/build-${{ runner.os }}/AppDir/
+          ../linuxdeployqt-continuous-x86_64.AppImage --appimage-extract-and-run ${{github.workspace}}/build-${{ runner.os }}/AppDir/caesium-image-compressor.desktop -appimage -unsupported-allow-new-glibc -no-copy-copyright-files
+          mv ${{github.workspace}}/build-${{ runner.os }}/AppDir*.AppImage ${{github.workspace}}/build-${{ runner.os }}/
 
       - name: Upload AppImage as Artifact
         uses: actions/upload-artifact@v4
@@ -91,7 +105,7 @@ jobs:
 
       - name: Upload AppImage to GitHub Release
         id: upload-release
-        uses: svenstaro/upload-release-action@2.9.0
+        uses: svenstaro/upload-release-action@v2.9.0
         with:
           file_glob: true
           file: ${{github.workspace}}/build-${{ runner.os }}/caesium-image-compressor*.AppImage
