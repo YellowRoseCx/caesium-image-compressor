@@ -87,12 +87,13 @@ jobs:
           path: ${{github.workspace}}/build-${{ runner.os }}/caesium-image-compressor*.AppImage
 
       - name: Upload AppImage to GitHub Release
-        uses: svenstaro/upload-release-action@v2.9.0
+        id: upload-release
+        uses: svenstaro/upload-release-action@2.9.0
         with:
+          file_glob: true
           file: ${{github.workspace}}/build-${{ runner.os }}/caesium-image-compressor*.AppImage
           release_name: caesium_image_compressor-${{ inputs.version }}
           tag: ${{ inputs.version }}
           make_latest: true
           prerelease: false
           overwrite: true
-          asset_name: caesium-image-compressor-${{ inputs.version }}-ubuntu.AppImage
