@@ -67,6 +67,8 @@ jobs:
           sudo apt-get install -y squashfuse
           wget "https://github.com/probonopd/linuxdeployqt/releases/download/continuous/linuxdeployqt-continuous-x86_64.AppImage"
           chmod +x linuxdeployqt-continuous-x86_64.AppImage
+        env:
+          LINUXDEPLOYQT_PATH: ${{ github.workspace }}/linuxdeployqt-continuous-x86_64.AppImage
 
       - name: Configure CMake
         run: cmake -B ${{github.workspace}}/build-${{ runner.os }} -DCMAKE_PREFIX_PATH="${{env.Qt6_Dir}}" -DCMAKE_BUILD_TYPE=Release
@@ -78,10 +80,11 @@ jobs:
       - name: Create AppImage
         env:
           LD_LIBRARY_PATH: /usr/lib/x86_64-linux-gnu
+          LINUXDEPLOYQT_PATH: ${{ github.workspace }}/linuxdeployqt-continuous-x86_64.AppImage
         run: |
           mkdir -p ${{github.workspace}}/build-${{ runner.os }}/AppDir
           mkdir -p ${{github.workspace}}/build-${{ runner.os }}/AppDir/usr/bin
-          mkdir -p ${{github.workspace}}/build-${{ runner.os }}/AppDir/usr/share/icons/hicolor/256x256/apps/  # Standard icon location
+          mkdir -p ${{github.workspace}}/build-${{ runner.os }}/AppDir/usr/share/icons/hicolor/256x256/apps/
           cp ${{github.workspace}}/build-${{ runner.os }}/caesium-image-compressor ${{github.workspace}}/build-${{ runner.os }}/AppDir/usr/bin/
           cp ${{github.workspace}}/resources/icons/logo.png ${{github.workspace}}/build-${{ runner.os }}/AppDir/usr/share/icons/hicolor/256x256/apps/caesium-image-compressor.png
           cat > ${{github.workspace}}/build-${{ runner.os }}/AppDir/caesium-image-compressor.desktop <<EOF
@@ -93,9 +96,8 @@ jobs:
           Categories=Graphics;
           Terminal=false
           EOF
-          ../linuxdeployqt-continuous-x86_64.AppImage --appimage-extract-and-run ${{github.workspace}}/build-${{ runner.os }}/AppDir/caesium-image-compressor.desktop -appimage -unsupported-allow-new-glibc -no-copy-copyright-files
+          ${{ env.LINUXDEPLOYQT_PATH }} --appimage-extract-and-run ${{github.workspace}}/build-${{ runner.os }}/AppDir/caesium-image-compressor.desktop -appimage -unsupported-allow-new-glibc -no-copy-copyright-files
           mv ${{github.workspace}}/build-${{ runner.os }}/AppDir*.AppImage ${{github.workspace}}/build-${{ runner.os }}/
-          
 
       - name: Upload AppImage as Artifact
         uses: actions/upload-artifact@v4
