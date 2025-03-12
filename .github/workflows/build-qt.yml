@@ -135,7 +135,13 @@ jobs:
         run: cmake -B build_dir -DCMAKE_PREFIX_PATH="${{env.Qt6_Dir}}" -DCMAKE_BUILD_TYPE=Release -B ${{github.workspace}}/build-${{ runner.os }}
 
       - name: Build
-        run: cmake --build ${{github.workspace}}/build-${{ runner.os }} --config Release --target caesium_image_compressor
+        run: |
+          cmake --build ${{github.workspace}}/build-${{ runner.os }} --config Release --target caesium_image_compressor
+          Set-Location '${{github.workspace}}/build-${{ runner.os }}'
+          ls
+          Set-Location '${{github.workspace}}'
+          ls
+          
 
       - name: Upload files to a GitHub release
         id: upload-release
