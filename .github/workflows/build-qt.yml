@@ -33,78 +33,8 @@ on:
 
 permissions:
   contents: write
+
 jobs:
-  # build-windows:
-  #   runs-on: windows-latest
-  #   steps:
-  #     - name: Checkout code
-  #       uses: actions/checkout@v4
-
-  #     - name: Cache libcaesium
-  #       id: cache-libcaesium
-  #       uses: actions/cache@v4
-  #       env:
-  #         cache-name: cache-libcaesium
-  #       with:
-  #         path: ${{github.workspace}}/build-${{ runner.os }}/libcaesium-prefix
-  #         key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/libcaesium.conf') }}
-
-  #     - name: Install Qt
-  #       uses: jurplel/install-qt-action@v4
-  #       with:
-  #         aqtversion: '==3.1.*'
-  #         version: '6.8.2'
-  #         host: 'windows'
-  #         target: 'desktop'
-  #         arch: 'win64_mingw'
-  #         modules: 'qtimageformats'
-  #         tools: 'tools_mingw1310'
-  #         cache: true
-
-  #     - name: Install Rust target
-  #       run: rustup target add x86_64-pc-windows-gnu
-
-  #     - name: Configure CMake
-  #       run: cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH="${{env.Qt6_Dir}}" -G "CodeBlocks - MinGW Makefiles" -B ${{github.workspace}}/build-${{ runner.os }}
-
-  #     - name: Build
-  #       run: cmake --build ${{github.workspace}}/build-${{ runner.os }} --config Release --target caesium_image_compressor
-
-  #  build-macos:
-  #    runs-on: macos-latest
-  #    steps:
-  #      - name: Checkout code
-  #        uses: actions/checkout@v4
-  #
-  #      - name: Cache libcaesium
-  #        id: cache-libcaesium
-  #        uses: actions/cache@v4
-  #        env:
-  #          cache-name: cache-libcaesium
-  #        with:
-  #          path: ${{github.workspace}}/build-${{ runner.os }}/libcaesium-prefix
-  #          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/libcaesium.conf') }}
-  #
-  #      - name: Install Qt
-  #        uses: jurplel/install-qt-action@v4
-  #        with:
-  #          aqtversion: '==3.1.*'
-  #          version: '6.7.3'
-  #          host: 'mac'
-  #          target: 'desktop'
-  #          arch: 'clang_64'
-  #          modules: 'qtimageformats'
-  #          cache: true
-  #
-  #      - name: Setup Sparkle
-  #        run: brew install --cask https://raw.githubusercontent.com/Homebrew/homebrew-cask/c6dfe6baf1639998ba1707f68668cf8fa97bac9d/Casks/sparkle.rb && sudo cp -R /usr/local/Caskroom/sparkle/1.27.1/Sparkle.framework /Library/Frameworks/Sparkle.framework
-  #
-  #      - name: Configure CMake
-  #        run: cmake -B build_dir -DCMAKE_PREFIX_PATH="${{env.Qt6_Dir}}" -DSPARKLE_INCLUDE_DIR=/usr/local/Caskroom/sparkle/1.27.1/Sparkle.framework/Versions/Current/Headers -DLIBSSH_INCLUDE_DIR=/usr/local/opt/openssl/ -DCMAKE_BUILD_TYPE=Release -B ${{github.workspace}}/build-${{ runner.os }}
-  #
-  #      - name: Build
-  #        run: cmake --build ${{github.workspace}}/build-${{ runner.os }} --config Release --target caesium_image_compressor
-
   build-ubuntu:
     runs-on: ubuntu-latest
     steps:
@@ -131,29 +61,38 @@ jobs:
           modules: 'qtimageformats'
           cache: true
 
+      - name: Install linuxdeployqt
+        run: |
+          wget "https://github.com/probonopd/linuxdeployqt/releases/download/continuous/linuxdeployqt-continuous-x86_64.AppImage"
+          chmod +x linuxdeployqt-continuous-x86_64.AppImage
+          sudo mv linuxdeployqt-continuous-x86_64.AppImage /usr/local/bin/linuxdeployqt
+
       - name: Configure CMake
-        run: cmake -B build_dir -DCMAKE_PREFIX_PATH="${{env.Qt6_Dir}}" -DCMAKE_BUILD_TYPE=Release -B ${{github.workspace}}/build-${{ runner.os }}
+        run: cmake -B ${{github.workspace}}/build-${{ runner.os }} -DCMAKE_PREFIX_PATH="${{env.Qt6_Dir}}" -DCMAKE_BUILD_TYPE=Release
 
       - name: Build
         run: |
           cmake --build ${{github.workspace}}/build-${{ runner.os }} --config Release --target caesium_image_compressor
-          cd '${{github.workspace}}/build-${{ runner.os }}'
-          ls
-          echo 'end of that one!'
-          cd '${{github.workspace}}'
-          ls
-          
 
-      - name: Upload files to a GitHub release
-        id: upload-release
-        uses: svenstaro/upload-release-action@2.9.0
-        continue-on-error: true
+      - name: Create AppImage
+        run: |
+          cd ${{github.workspace}}/build-${{ runner.os }}
+          linuxdeployqt caesium-image-compressor -appdir -unsupported-allow-new-glibc
+          mv caesium-image-compressor*.AppImage ../
+
+      - name: Upload AppImage as Artifact
+        uses: actions/upload-artifact@v4
         with:
-          file_glob: true
-          file: ${{github.workspace}}/build-${{ runner.os }}/caesium-image-compressor
+          name: caesium-image-compressor-${{ inputs.version }}-ubuntu.AppImage
+          path: ${{github.workspace}}/build-${{ runner.os }}/caesium-image-compressor*.AppImage
+
+      - name: Upload AppImage to GitHub Release
+        uses: svenstaro/upload-release-action@v2.9.0
+        with:
+          file: ${{github.workspace}}/build-${{ runner.os }}/caesium-image-compressor*.AppImage
           release_name: caesium_image_compressor-${{ inputs.version }}
           tag: ${{ inputs.version }}
           make_latest: true
           prerelease: false
-          overwrite: false
-
+          overwrite: true
+          asset_name: caesium-image-compressor-${{ inputs.version }}-ubuntu.AppImage
